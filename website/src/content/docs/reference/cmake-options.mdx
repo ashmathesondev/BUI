@@ -4,7 +4,7 @@ description: Every option you can pass when building BUI from source with CMake,
 section: Reference
 order: 20
 languages: ["c", "cpp", "imgui"]
-sources: ["Makefile", "bindings/rust/Cargo.toml", "CMakeLists.txt", "features.json", "features.cmake", "kit/CMakeLists.txt", "gpu/CMakeLists.txt", "ui/CMakeLists.txt", "bindings/imgui/CMakeLists.txt", "bindings/python/CMakeLists.txt", "backends/qt/CMakeLists.txt", "examples/CMakeLists.txt", "docs/getting-started.md", "pyproject.toml", "bindings/rust/blenderui-sys/build.rs"]
+sources: ["Makefile", "bindings/rust/Cargo.toml", "CMakeLists.txt", "features.json", "features.cmake", "kit/CMakeLists.txt", "core/CMakeLists.txt", "gpu/CMakeLists.txt", "ui/CMakeLists.txt", "bindings/imgui/CMakeLists.txt", "bindings/python/CMakeLists.txt", "bindings/python/src/buipy_python.h", "backends/qt/CMakeLists.txt", "examples/CMakeLists.txt", "docs/getting-started.md", "pyproject.toml", "bindings/rust/blenderui-sys/build.rs"]
 ---
 
 When you build BUI from source, a handful of CMake options decide what gets built and how text is drawn. The defaults suit almost everyone, so you only need this page when you want something specific: C only, Windows' own fonts, or Dear ImGui with Blender's widgets.
@@ -97,6 +97,12 @@ See [Text and fonts](../../concepts/text-and-fonts/) for what these change on sc
 | `CMAKE_BUILD_TYPE` | `Release` | Standard CMake. BUI sets `Release` when you don't choose, because debug builds are much slower. |
 
 The C code is built as C11 and the C++ code as C++20. MSVC builds get `/W3 /utf-8`; GCC and Clang get `-Wall`.
+
+Windows Clang's GNU frontend (`clang.exe`) targeting the MSVC runtime also
+works with Git's shell. WebP's SIMD flags are applied per specialized source
+file to preserve runtime CPU dispatch. Debug builds support a release-only
+Python installation: the Python headers match its ABI while the surrounding
+BUI code keeps its debug CRT/STL configuration.
 
 ## Found automatically
 

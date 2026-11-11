@@ -66,6 +66,12 @@ alternative Cargo manifest. `JOBS` controls CMake and Cargo parallelism;
 to their tools. CTest targets fail when no matching tests are registered.
 `clean-cpp` requires an already configured build directory.
 
+Windows Clang's GNU frontend (`clang.exe`) targeting the MSVC runtime is
+supported with Git's shell. WebP's SIMD flags apply only to its specialized
+source files, preserving runtime CPU dispatch. Debug builds can use a normal
+release-only Python installation; the binding matches Python's ABI while
+preserving the debug CRT/STL for BUI.
+
 On Windows, CMake uses its default generator, typically Visual Studio.
 For MSYS2/MinGW, use `CMAKE_ARGS='-G "MinGW Makefiles"'` from an MSYS2 shell.
 Use a separate `BUILD_DIR` when changing generators. Direct CMake and Cargo

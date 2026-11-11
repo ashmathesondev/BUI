@@ -1927,6 +1927,8 @@ make help           # all targets and configuration options
 ```
 
 An existing CMake build keeps its cached build type; new builds use Release.
+On Windows this includes Clang's GNU frontend targeting the MSVC runtime;
+Debug builds can use a release-only Python installation.
 Use `BUILD_TYPE=Debug` to override it. Rust follows that choice (`dev` for
 Debug, `release` otherwise); `RUST_PROFILE` overrides the Cargo profile.
 See [Building with Make](docs/getting-started.md#build-with-make) for tool and flag overrides.

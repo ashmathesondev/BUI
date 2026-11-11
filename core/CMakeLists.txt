@@ -80,19 +80,21 @@ target_include_directories(bui_core PRIVATE
 )
 
 # Forced compat shim so upstream sources compile as-is in C mode (GCC/Clang).
+# Resolve through the existing intern include directory. Git/MSYS sh rewrites
+# absolute paths joined to -include when launching native Windows Clang.
 if(MSVC)  # cl and clang-cl spell the forced include /FI
   target_compile_options(bui_core PRIVATE
-    "/FI${CMAKE_CURRENT_SOURCE_DIR}/intern/bui_c_compat.h"
+    /FIbui_c_compat.h
   )
 elseif(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(bui_core PRIVATE
-    "-include${CMAKE_CURRENT_SOURCE_DIR}/intern/bui_c_compat.h"
+    -include bui_c_compat.h
   )
 endif()
 
 find_package(Threads REQUIRED)
 target_link_libraries(bui_core PUBLIC Threads::Threads)
-if(UNIX)
+if(UNIX OR MINGW)
   target_link_libraries(bui_core PUBLIC m)
 endif()
 

@@ -20,9 +20,6 @@ target_include_directories(bui_gpu PUBLIC
   ${BUI_SOURCE_DIR}/core/include
 )
 target_link_libraries(bui_gpu PUBLIC bui::core)
-if(NOT MSVC)
-  target_link_libraries(bui_gpu PRIVATE m)
-endif()
 # Text: the portable stb_truetype engine everywhere (Inter embedded as the
 # default face, like Blender; glyph outlines feed the GPU's Slug renderer).
 # BUI_TEXT_GDI=ON switches Windows to the native GDI engine (system fonts,

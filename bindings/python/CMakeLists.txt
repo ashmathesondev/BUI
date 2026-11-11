@@ -13,6 +13,15 @@ message(STATUS "BUI: building buipy Python bindings for Python ${Python3_VERSION
 Python3_add_library(buipy MODULE WITH_SOABI src/buipy_module.c src/buipy_kit.c src/buipy_video.c)
 target_link_libraries(buipy PRIVATE bui_api bui_gpu bui_kit)
 
+# A Debug CRT does not imply a debug Python installation. Match the ABI
+# to the imported library without changing the surrounding CRT/STL mode.
+if(MSVC OR CMAKE_C_SIMULATE_ID STREQUAL "MSVC")
+  get_target_property(_bui_python_configs Python3::Module IMPORTED_CONFIGURATIONS)
+  if(NOT "DEBUG" IN_LIST _bui_python_configs)
+    target_compile_definitions(buipy PRIVATE BUI_PYTHON_RELEASE_ABI)
+  endif()
+endif()
+
 # ($<0:> keeps multi-config generators from adding a Release/ subdirectory.)
 # Keep the extension next to the pure-Python 'bui' package in the build tree so
 # tests and examples can import both with a single sys.path entry.

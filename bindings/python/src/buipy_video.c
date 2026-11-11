@@ -4,8 +4,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later */
 
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
+#include "buipy_python.h"
 
 #include "BUI_kit.h"
 
