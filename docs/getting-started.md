@@ -22,6 +22,61 @@ cmake -S . -B build -G "MinGW Makefiles"
 cmake --build build
 ```
 
+### Build with Make
+
+**GNU Make 4.2 or newer is required.** Run from the repository root. The
+Makefile uses CMake for C/C++ and the Python extension, Cargo for Rust, and
+the `pyproject.toml` backend for Python packages. Install the tools for the
+language targets you choose; `make build` and `make test` also need Rust 1.88+.
+
+| Command | What it does |
+|---|---|
+| `make` or `make build` | Build the CMake project (including Python when its development files are available) and the Rust workspace |
+| `make build-cpp` | Build the CMake project, including enabled bindings and examples |
+| `make build-rust` | Build every member of `bindings/rust/Cargo.toml` |
+| `make build-python` | Build `buipy` and its native dependencies; fails if CMake did not find Python's development files |
+| `make package-python` | Build a wheel and sdist in `dist/`; first run `python -m pip install build` |
+| `make test` | Build and run registered CTest suites (C/C++ and Python), then Rust workspace tests |
+| `make test-cpp` | Build the CMake project and run all registered CTest suites |
+| `make test-python` | Build the CMake project and run its Python suites only |
+| `make test-rust` | Run Rust workspace tests |
+| `make clean` | Clean CMake and Cargo outputs, retaining the CMake cache and downloaded dependencies |
+| `make clean-cpp` / `make clean-rust` | Clean only the selected build system's outputs |
+| `make configure` / `make help` | Configure without compiling / list targets and options |
+
+The build type defaults to the existing `BUILD_DIR/CMakeCache.txt` value, or
+Release for a new directory. `make configure BUILD_TYPE=Debug` followed by
+`make build` or `make test` keeps Debug. Rust uses `dev` for Debug and
+`release` otherwise; set `RUST_PROFILE` to choose a Cargo profile explicitly.
+
+```sh
+make build BUILD_DIR=build-release BUILD_TYPE=Release JOBS=4
+make build-cpp CMAKE_ARGS="-DBUI_BUILD_EXAMPLES=ON"
+make test-python CTEST_ARGS="-R buipy_images"
+make test-rust RUST_PROFILE=dev CARGO_ARGS="--offline"
+make package-python PYTHON_BUILD_ARGS="--wheel"
+```
+
+Set `CMAKE`, `CTEST`, `CARGO` or `PYTHON` to alternative executable paths.
+`PYTHON` selects the packaging frontend; to select CMake's Python interpreter,
+pass `CMAKE_ARGS="-DPython3_EXECUTABLE=/absolute/path/to/python"`.
+`DIST_DIR` changes the package output directory. `RUST_MANIFEST` selects an
+alternative Cargo manifest. `JOBS` controls CMake and Cargo parallelism;
+`CMAKE_ARGS`, `CTEST_ARGS`, `CARGO_ARGS` and `PYTHON_BUILD_ARGS` pass extra flags
+to their tools. CTest targets fail when no matching tests are registered.
+`clean-cpp` requires an already configured build directory.
+
+Windows Clang's GNU frontend (`clang.exe`) targeting the MSVC runtime is
+supported with Git's shell. WebP's SIMD flags apply only to its specialized
+source files, preserving runtime CPU dispatch. Debug builds can use a normal
+release-only Python installation; the binding matches Python's ABI while
+preserving the debug CRT/STL for BUI.
+
+On Windows, CMake uses its default generator, typically Visual Studio.
+For MSYS2/MinGW, use `CMAKE_ARGS='-G "MinGW Makefiles"'` from an MSYS2 shell.
+Use a separate `BUILD_DIR` when changing generators. Direct CMake and Cargo
+commands remain available without GNU Make.
+
 ### Build options
 
 | Option | Default | Effect |

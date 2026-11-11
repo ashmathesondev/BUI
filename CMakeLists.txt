@@ -58,12 +58,16 @@ endif()
 
 if(MSVC)
   add_compile_options(/W3 /utf-8)
-  add_compile_definitions(_USE_MATH_DEFINES _CRT_SECURE_NO_WARNINGS)  # M_PI*; POSIX names
 else()
   add_compile_options(-Wall -Wno-unused-parameter -Wno-missing-field-initializers)
   if(NOT BUI_WARNINGS_AS_ERRORS)
     add_compile_options(-Wno-error)
   endif()
+endif()
+
+# Windows CRT definitions apply to both Clang frontends, not just clang-cl.
+if(MSVC OR CMAKE_C_SIMULATE_ID STREQUAL "MSVC")
+  add_compile_definitions(_USE_MATH_DEFINES _CRT_SECURE_NO_WARNINGS)
 endif()
 
 set(BUI_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})

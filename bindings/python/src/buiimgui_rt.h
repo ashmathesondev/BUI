@@ -7,8 +7,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #pragma once
-#define PY_SSIZE_T_CLEAN
-#include <Python.h>
+#include "buipy_python.h"
 #include <structmember.h>
 
 #include "imgui.h"

@@ -121,6 +121,18 @@ if(BUI_IMAGE_WEBP) # libwebp 1.6.0: decoder + demux
     target_compile_definitions(bui_webp PRIVATE WEBP_USE_THREAD)
   endif()
   target_compile_options(bui_webp PRIVATE ${_bui_quiet} $<$<NOT:$<C_COMPILER_ID:MSVC>>:-O2>)
+  # As in upstream libwebp's cmake/cpu.cmake: its MSVC-ABI detection
+  # enables x86 SIMD, but Clang requires explicit per-file ISA flags.
+  # Keep the generic files portable so runtime CPU dispatch stays safe.
+  if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND
+     CMAKE_C_SIMULATE_ID STREQUAL "MSVC" AND
+     CMAKE_C_COMPILER_ARCHITECTURE_ID MATCHES "^(X86|x64)$")
+    foreach(_isa sse2 sse4.1 avx2)
+      string(REPLACE "." "" _suffix "${_isa}")
+      file(GLOB _bui_webp_simd_src extern/libwebp/src/dsp/*_${_suffix}.c)
+      set_property(SOURCE ${_bui_webp_simd_src} APPEND PROPERTY COMPILE_OPTIONS "-m${_isa}")
+    endforeach()
+  endif()
   target_sources(bui_kit PRIVATE intern/image/format_webp.c $<TARGET_OBJECTS:bui_webp>)
   target_include_directories(bui_kit PRIVATE extern/libwebp)
 endif()
@@ -131,7 +143,6 @@ target_include_directories(bui_kit PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/intern)
 target_link_libraries(bui_kit PUBLIC bui::gpu bui::core)
 if(NOT MSVC)
   target_compile_options(bui_kit PRIVATE -O2)
-  target_link_libraries(bui_kit PRIVATE m)
 endif()
 if(WIN32)
   target_link_libraries(bui_kit PRIVATE user32 gdi32 imm32)

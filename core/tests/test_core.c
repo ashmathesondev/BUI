@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "bui_c_compat.h"
+
 #include "BLI_dynstr.h"
 #include "BLI_ghash.h"
 #include "BLI_listbase.h"
