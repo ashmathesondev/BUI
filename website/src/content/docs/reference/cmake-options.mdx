@@ -4,7 +4,7 @@ description: Every option you can pass when building BUI from source with CMake,
 section: Reference
 order: 20
 languages: ["c", "cpp", "imgui"]
-sources: ["CMakeLists.txt", "features.json", "features.cmake", "kit/CMakeLists.txt", "gpu/CMakeLists.txt", "ui/CMakeLists.txt", "bindings/imgui/CMakeLists.txt", "bindings/python/CMakeLists.txt", "backends/qt/CMakeLists.txt", "examples/CMakeLists.txt", "docs/getting-started.md", "pyproject.toml", "bindings/rust/blenderui-sys/build.rs"]
+sources: ["Makefile", "bindings/rust/Cargo.toml", "CMakeLists.txt", "features.json", "features.cmake", "kit/CMakeLists.txt", "gpu/CMakeLists.txt", "ui/CMakeLists.txt", "bindings/imgui/CMakeLists.txt", "bindings/python/CMakeLists.txt", "backends/qt/CMakeLists.txt", "examples/CMakeLists.txt", "docs/getting-started.md", "pyproject.toml", "bindings/rust/blenderui-sys/build.rs"]
 ---
 
 When you build BUI from source, a handful of CMake options decide what gets built and how text is drawn. The defaults suit almost everyone, so you only need this page when you want something specific: C only, Windows' own fonts, or Dear ImGui with Blender's widgets.
@@ -17,6 +17,36 @@ cmake --build build -j 2
 ```
 
 Options are cached in the build folder. To change one later, configure again with the new value, or start a fresh build folder.
+
+## Build with GNU Make
+
+The root Makefile requires **GNU Make 4.2 or newer**. It runs the existing
+CMake, Cargo and Python packaging builds from the repository root:
+
+```sh
+make build          # C/C++, available Python bindings, and the Rust workspace
+make build-cpp      # CMake project, including enabled bindings and examples
+make build-rust     # Rust workspace only
+make build-python   # buipy and its native dependencies
+make test           # native/Python CTest suites and Rust workspace tests
+make test-python    # build native targets, then run Python suites only
+make package-python # wheel + sdist; first run: python -m pip install build
+make help           # all targets and overrides
+```
+
+Set `BUILD_DIR`, `BUILD_TYPE` and `JOBS` to choose a build directory,
+configuration and parallelism. A new directory defaults to Release;
+an existing directory retains its cached build type. Rust uses `dev` for
+Debug and `release` otherwise; `RUST_PROFILE` overrides that choice.
+`make build-python` fails if CMake did not find Python's development files.
+`make test` fails if CTest registers no tests.
+
+Use `CMAKE_ARGS`, `CTEST_ARGS`, `CARGO_ARGS` and `PYTHON_BUILD_ARGS` for
+additional tool arguments. `CMAKE`, `CTEST`, `CARGO` and `PYTHON` select
+executables; `PYTHON` controls packaging, while CMake discovers its Python
+interpreter (override with `CMAKE_ARGS="-DPython3_EXECUTABLE=/path/to/python"`).
+`DIST_DIR` changes package output from `dist/`. `make clean` cleans both
+CMake and Cargo outputs and retains CMake's configuration.
 
 ## What gets built
 

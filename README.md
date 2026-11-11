@@ -1913,6 +1913,24 @@ and [docs/getting-started.md](docs/getting-started.md#environment-variables).
 
 ## 38. Building from source and CMake options
 
+The root Makefile requires **GNU Make 4.2 or newer**. It delegates to CMake,
+Cargo and Python's existing build backend:
+
+```sh
+make build          # native C/C++, Python bindings when available, and Rust
+make build-cpp      # CMake targets, including enabled bindings and examples
+make build-rust     # Rust workspace
+make build-python   # buipy extension and its native dependencies
+make test           # native/Python CTest suites and Rust workspace tests
+make package-python # wheel + sdist in dist/; first: python -m pip install build
+make help           # all targets and configuration options
+```
+
+An existing CMake build keeps its cached build type; new builds use Release.
+Use `BUILD_TYPE=Debug` to override it. Rust follows that choice (`dev` for
+Debug, `release` otherwise); `RUST_PROFILE` overrides the Cargo profile.
+See [Building with Make](docs/getting-started.md#build-with-make) for tool and flag overrides.
+
 You need **CMake 3.20+**, a **C11 / C++20 compiler** (MSVC, GCC/MinGW or
 Clang) and **Python 3.11+** with headers. On Linux, also the X11 headers.
 
