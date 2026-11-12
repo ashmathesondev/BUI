@@ -1,0 +1,17 @@
+# Standalone installed-SDK consumer: no add_subdirectory or source-tree includes.
+cmake_minimum_required(VERSION 3.20)
+project(bui_sdk_consumer LANGUAGES C CXX)
+find_package(BUI CONFIG REQUIRED)
+enable_testing()
+add_executable(bui_sdk_smoke smoke.c smoke.cpp)
+target_link_libraries(bui_sdk_smoke PRIVATE bui::kit bui::api)
+target_compile_features(bui_sdk_smoke PRIVATE cxx_std_20)
+if(TARGET bui::imgui)
+  target_link_libraries(bui_sdk_smoke PRIVATE bui::imgui bui::cimgui)
+  target_compile_definitions(bui_sdk_smoke PRIVATE BUI_SDK_HAS_IMGUI)
+endif()
+if(MSVC)
+  # In particular, fail if a compiler PDB is missing (LNK4099).
+  target_link_options(bui_sdk_smoke PRIVATE /DEBUG:FULL /WX)
+endif()
+add_test(NAME installed_sdk COMMAND bui_sdk_smoke)

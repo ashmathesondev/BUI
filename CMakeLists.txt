@@ -15,6 +15,7 @@ file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/bindings/python/bui/_version.py" _bui_
      REGEX "^__version__")
 string(REGEX MATCH "[0-9]+[.][0-9]+[.][0-9]+" BUI_VERSION "${_bui_version_line}")
 project(bui LANGUAGES C CXX VERSION ${BUI_VERSION})
+include(GNUInstallDirs)
 # macOS: the kit's native window host (kit/intern/kit_window_cocoa.m) is
 # Objective-C. Enabled here, in the top directory, so every target linking
 # bui_kit knows the language.
@@ -24,6 +25,7 @@ endif()
 # static libraries end up in shared modules (Python, Node) on Linux and macOS
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+option(BUI_BUILD_CPP_SDK "Enable installable C/C++ SDK and dist-cpp target" OFF)
 option(BUI_BUILD_TESTS "Build BUI test executables" ON)
 option(BUI_BUILD_EXAMPLES "Build BUI example applications" OFF)
 option(BUI_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
@@ -176,4 +178,8 @@ endif()
 
 if(BUI_BUILD_EXAMPLES)
   add_subdirectory(examples)
+endif()
+
+if(BUI_BUILD_CPP_SDK)
+  include(cmake/BuiCppSdk.cmake)
 endif()

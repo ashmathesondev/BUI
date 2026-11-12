@@ -36,6 +36,7 @@ language targets you choose; `make build` and `make test` also need Rust 1.88+.
 | `make build-rust` | Build every member of `bindings/rust/Cargo.toml` |
 | `make build-python` | Build `buipy` and its native dependencies; fails if CMake did not find Python's development files |
 | `make package-python` | Build a wheel and sdist in `dist/`; first run `python -m pip install build` |
+| `make dist-cpp` | Build an optimized C/C++ SDK ZIP in `dist/cpp/`, with Windows compiler PDBs |
 | `make test` | Build and run registered CTest suites (C/C++ and Python), then Rust workspace tests |
 | `make test-cpp` | Build the CMake project and run all registered CTest suites |
 | `make test-python` | Build the CMake project and run its Python suites only |
@@ -77,10 +78,41 @@ For MSYS2/MinGW, use `CMAKE_ARGS='-G "MinGW Makefiles"'` from an MSYS2 shell.
 Use a separate `BUILD_DIR` when changing generators. Direct CMake and Cargo
 commands remain available without GNU Make.
 
+### C/C++ distribution
+
+Run `make dist-cpp` to configure a separate `build-dist-cpp/` tree, build the
+SDK libraries and package them under `dist/cpp/`. The default configuration
+is `RelWithDebInfo`: optimized code with debug information. This does not
+change the compiler, generator or build type in your regular `BUILD_DIR`.
+
+```sh
+make dist-cpp JOBS=4
+make dist-cpp CPP_DIST_CONFIG=Debug CPP_DIST_BUILD_DIR=build-sdk-debug
+make dist-cpp CPP_DIST_CMAKE_ARGS="-DBUI_BUILD_IMGUI=OFF"
+```
+
+`CPP_DIST_CONFIG` selects the configuration, `CPP_DIST_BUILD_DIR` the separate
+build tree, and `CPP_DIST_CMAKE_ARGS` extra CMake options for that tree.
+`DIST_DIR` changes the output root; SDK ZIPs are written to its `cpp/` folder.
+The archive name identifies the BUI version, OS, architecture, compiler and
+configuration.
+
+On Windows, this SDK step requires MSVC `cl.exe` to produce compiler PDBs;
+use a Visual Studio generator and a fresh distribution build directory.
+Clang remains supported for ordinary builds. Every compiler PDB referenced
+by the static libraries is packaged beside the `.lib` files, including those
+for the object libraries folded into core and kit. Missing PDBs cause
+packaging to fail. Static libraries have compiler PDBs; the consuming
+application produces its own linker PDB.
+
+See [Using and distributing the SDK](c-api.md#distributing-a-cc-sdk) for the
+archive layout and `find_package` example.
+
 ### Build options
 
 | Option | Default | Effect |
 |---|---|---|
+| `BUI_BUILD_CPP_SDK` | `OFF` | Enable C/C++ SDK install/export rules and the `dist-cpp` target; requires MSVC for compiler PDBs on Windows |
 | `BUI_BUILD_PYTHON_BINDINGS` | `ON` | Build the `buipy` CPython extension. It is skipped with a message if the Python dev files are missing. |
 | `BUI_BUILD_LUA_BINDINGS` | `OFF` | The Lua 5.4 host (`bui-lua` and the `bui` module). Lua is fetched at configure time when the system has no Lua 5.4. |
 | `BUI_BUILD_TESTS` | `ON` | C test executables and the ctest suites |

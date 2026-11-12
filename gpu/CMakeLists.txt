@@ -16,8 +16,9 @@ add_library(bui::gpu ALIAS bui_gpu)
 bui_features(bui_gpu)
 
 target_include_directories(bui_gpu PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${BUI_SOURCE_DIR}/core/include
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${BUI_SOURCE_DIR}/core/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/bui/gpu>
 )
 target_link_libraries(bui_gpu PUBLIC bui::core)
 # Text: the portable stb_truetype engine everywhere (Inter embedded as the

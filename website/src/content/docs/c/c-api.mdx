@@ -5,7 +5,7 @@ description: Use BUI's runtime directly from C. Nodes, properties, layout, the c
 section: C & C++
 order: 10
 languages: ["c", "cpp"]
-sources: ["docs/c-api.md", "kit/include/BUI_kit.h", "gpu/include/GPU_raster.h", "examples/kit_hello.c", "examples/CMakeLists.txt", "kit/intern/kit_core.c", "CMakeLists.txt"]
+sources: ["Makefile", "cmake/BuiCppSdk.cmake", "cmake/BUIConfig.cmake.in", "tests/cpp_sdk/CMakeLists.txt", "docs/c-api.md", "kit/include/BUI_kit.h", "gpu/include/GPU_raster.h", "examples/kit_hello.c", "examples/CMakeLists.txt", "kit/intern/kit_core.c", "CMakeLists.txt"]
 ---
 
 **The kit is BUI's runtime, written in C, and `BUI_kit.h` is its whole public API.** Use it directly and you get Blender's widgets, layout, input handling and damage rendering with nothing in between: no interpreter, no garbage collector, one static library.
@@ -30,6 +30,37 @@ target_link_libraries(myapp PRIVATE bui::kit)
 ```
 
 Then `#include "BUI_kit.h"`. The header is the reference: every function has a one-line comment. The [installation page](../../start/installation/) covers compilers and platforms.
+
+## Installable C/C++ SDK
+
+Run `make dist-cpp` from the repository root with GNU Make 4.2 or newer.
+It creates a ZIP under `dist/cpp/` with static libraries, runtime headers,
+licenses and relocatable CMake targets. A separate `build-dist-cpp/` tree
+defaults to `RelWithDebInfo`, leaving the regular build configuration intact.
+
+On Windows, this SDK build requires MSVC `cl.exe`. It packages the matching
+compiler PDBs beside the `.lib` files, including the symbols for object
+libraries embedded in core and kit. Packaging fails if a required PDB is
+missing. Keep these files together so your application's linker can use
+them to produce its own PDB.
+
+Extract the archive and link the installed targets:
+
+```cmake
+find_package(BUI CONFIG REQUIRED)
+target_link_libraries(myapp PRIVATE bui::kit)
+```
+
+Set `CMAKE_PREFIX_PATH` to the extracted SDK directory when configuring your
+app. Other exports are `bui::core`, `bui::gpu`, `bui::api` and, when enabled,
+`bui::imgui` and `bui::cimgui`. Use a compatible compiler, architecture and
+runtime configuration. The default Windows SDK uses the release DLL CRT;
+`make dist-cpp CPP_DIST_CONFIG=Debug` builds a debug-CRT SDK instead.
+
+Override the separate build directory with `CPP_DIST_BUILD_DIR`, extra
+SDK CMake options with `CPP_DIST_CMAKE_ARGS`, and the output root with
+`DIST_DIR`. The archive name records the version, platform, architecture,
+compiler and configuration.
 
 ## The shape of a kit program
 

@@ -4,7 +4,7 @@ description: Every option you can pass when building BUI from source with CMake,
 section: Reference
 order: 20
 languages: ["c", "cpp", "imgui"]
-sources: ["Makefile", "bindings/rust/Cargo.toml", "CMakeLists.txt", "features.json", "features.cmake", "kit/CMakeLists.txt", "core/CMakeLists.txt", "gpu/CMakeLists.txt", "ui/CMakeLists.txt", "bindings/imgui/CMakeLists.txt", "bindings/python/CMakeLists.txt", "bindings/python/src/buipy_python.h", "backends/qt/CMakeLists.txt", "examples/CMakeLists.txt", "docs/getting-started.md", "pyproject.toml", "bindings/rust/blenderui-sys/build.rs"]
+sources: ["cmake/BuiCppSdk.cmake", "cmake/BUIConfig.cmake.in", "Makefile", "bindings/rust/Cargo.toml", "CMakeLists.txt", "features.json", "features.cmake", "kit/CMakeLists.txt", "core/CMakeLists.txt", "gpu/CMakeLists.txt", "ui/CMakeLists.txt", "bindings/imgui/CMakeLists.txt", "bindings/python/CMakeLists.txt", "bindings/python/src/buipy_python.h", "backends/qt/CMakeLists.txt", "examples/CMakeLists.txt", "docs/getting-started.md", "pyproject.toml", "bindings/rust/blenderui-sys/build.rs"]
 ---
 
 When you build BUI from source, a handful of CMake options decide what gets built and how text is drawn. The defaults suit almost everyone, so you only need this page when you want something specific: C only, Windows' own fonts, or Dear ImGui with Blender's widgets.
@@ -52,6 +52,7 @@ CMake and Cargo outputs and retains CMake's configuration.
 
 | Option | Default | What it does |
 | --- | --- | --- |
+| `BUI_BUILD_CPP_SDK` | `OFF` | Enables installable C/C++ SDK targets and `dist-cpp`. `make dist-cpp` enables it in a separate build tree and writes a ZIP to `dist/cpp/`; Windows SDKs include matching MSVC compiler PDBs. |
 | `BUI_BUILD_TESTS` | `ON` | Builds the C test programs and registers every suite with `ctest`, including the native-window smoke test (skipped without a display). |
 | `BUI_BUILD_EXAMPLES` | `OFF` | Builds the C examples: `bui_kit_hello` (`examples/kit_hello.c`, a slider and a button in a native window) and `bui_svg_demo`. |
 | `BUI_BUILD_PYTHON_BINDINGS` | `ON` | Builds the `buipy` CPython extension, and the Dear ImGui extension when ImGui is built too. Skipped, with a message, if CMake can't find Python's development files. |

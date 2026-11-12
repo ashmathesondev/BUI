@@ -1923,6 +1923,7 @@ make build-rust     # Rust workspace
 make build-python   # buipy extension and its native dependencies
 make test           # native/Python CTest suites and Rust workspace tests
 make package-python # wheel + sdist in dist/; first: python -m pip install build
+make dist-cpp       # C/C++ SDK ZIP in dist/cpp/, including Windows compiler PDBs
 make help           # all targets and configuration options
 ```
 
@@ -1932,6 +1933,12 @@ Debug builds can use a release-only Python installation.
 Use `BUILD_TYPE=Debug` to override it. Rust follows that choice (`dev` for
 Debug, `release` otherwise); `RUST_PROFILE` overrides the Cargo profile.
 See [Building with Make](docs/getting-started.md#build-with-make) for tool and flag overrides.
+
+`make dist-cpp` uses a separate `build-dist-cpp/` tree and defaults to
+`RelWithDebInfo` (optimized code with symbols). On Windows it requires MSVC
+and includes the matching compiler PDBs, including embedded object libraries.
+Extract the SDK, then use `find_package(BUI CONFIG REQUIRED)` and link
+`bui::kit`, `bui::api` or `bui::imgui`. See [C/C++ distribution](docs/c-api.md#distributing-a-cc-sdk).
 
 You need **CMake 3.20+**, a **C11 / C++20 compiler** (MSVC, GCC/MinGW or
 Clang) and **Python 3.11+** with headers. On Linux, also the X11 headers.

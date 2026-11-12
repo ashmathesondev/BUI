@@ -137,7 +137,9 @@ if(BUI_IMAGE_WEBP) # libwebp 1.6.0: decoder + demux
   target_include_directories(bui_kit PRIVATE extern/libwebp)
 endif()
 # worker threads: bui_core links the platform's threads (Threads::Threads)
-target_include_directories(bui_kit PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(bui_kit PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/bui/kit>)
 target_include_directories(bui_kit PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/intern)
 # bui_core: Blender's color math and UTF-8 cursor stepping; bui_gpu: raster.
 target_link_libraries(bui_kit PUBLIC bui::gpu bui::core)
