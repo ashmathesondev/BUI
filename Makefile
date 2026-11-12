@@ -16,13 +16,16 @@ BUILD_TYPE ?= $(or $(word 2,$(subst =, ,$(filter CMAKE_BUILD_TYPE:%,$(file <$(BU
 RUST_MANIFEST ?= bindings/rust/Cargo.toml
 RUST_PROFILE ?= $(if $(filter Debug,$(BUILD_TYPE)),dev,release)
 DIST_DIR ?= dist
+CPP_DIST_BUILD_DIR ?= build-dist-cpp
+CPP_DIST_CONFIG ?= RelWithDebInfo
+CPP_DIST_CMAKE_ARGS ?=
 JOBS ?= 2
 CMAKE_ARGS ?=
 CTEST_ARGS ?=
 CARGO_ARGS ?=
 PYTHON_BUILD_ARGS ?=
 
-.PHONY: all configure build build-cpp build-rust build-python package-python \
+.PHONY: all configure build build-cpp build-rust build-python package-python dist-cpp \
         test test-cpp test-rust test-python clean clean-cpp clean-rust help
 
 all: build
@@ -40,6 +43,11 @@ build-cpp build-python: configure
 
 build-rust:
 	"$(CARGO)" build --manifest-path "$(RUST_MANIFEST)" --workspace --profile "$(RUST_PROFILE)" --jobs $(JOBS) $(CARGO_ARGS)
+
+# Use a separate tree: SDK compiler/configuration choices do not alter BUILD_DIR.
+dist-cpp:
+	"$(CMAKE)" -S . -B "$(CPP_DIST_BUILD_DIR)" -DCMAKE_BUILD_TYPE="$(CPP_DIST_CONFIG)" -DBUI_BUILD_CPP_SDK=ON -DBUI_BUILD_TESTS=OFF -DBUI_BUILD_EXAMPLES=OFF -DBUI_BUILD_PYTHON_BINDINGS=OFF -DBUI_CPP_DIST_DIR:PATH="$(abspath $(DIST_DIR))/cpp" $(CPP_DIST_CMAKE_ARGS)
+	"$(CMAKE)" --build "$(CPP_DIST_BUILD_DIR)" --config "$(CPP_DIST_CONFIG)" --target dist-cpp --parallel $(JOBS)
 
 package-python:
 	"$(PYTHON)" -m build --outdir "$(DIST_DIR)" $(PYTHON_BUILD_ARGS)
@@ -68,6 +76,7 @@ help:
 	@echo "make build-cpp      Build the CMake project (including enabled bindings)"
 	@echo "make build-rust     Build the Rust workspace"
 	@echo "make build-python   Build the buipy extension and its native dependencies"
+	@echo "make dist-cpp       Build a relocatable C/C++ SDK ZIP in dist/cpp (Windows PDBs included)"
 	@echo "make package-python Build Python wheel and sdist (pip install build first)"
 	@echo "make test           Run CTest (C/C++ and Python) and Rust tests"
 	@echo "make test-python    Build native targets and run only Python CTest suites"
@@ -75,5 +84,6 @@ help:
 	@echo "make test-rust       Run Rust workspace tests"
 	@echo "make clean          Clean CMake and Cargo outputs; retain CMake configuration"
 	@echo "Options: BUILD_DIR BUILD_TYPE RUST_PROFILE RUST_MANIFEST JOBS DIST_DIR"
+	@echo "C++ SDK options: CPP_DIST_BUILD_DIR CPP_DIST_CONFIG CPP_DIST_CMAKE_ARGS"
 	@echo "Tools: CMAKE CTEST CARGO PYTHON"
 	@echo "Extra flags: CMAKE_ARGS CTEST_ARGS CARGO_ARGS PYTHON_BUILD_ARGS"

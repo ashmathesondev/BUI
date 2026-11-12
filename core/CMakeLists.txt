@@ -68,10 +68,12 @@ endif()
 add_library(bui::core ALIAS bui_core)
 
 target_include_directories(bui_core PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${BUI_SOURCE_DIR}/types/dna/include
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${BUI_SOURCE_DIR}/types/dna/include>
   # headers #include "intern/*.c" inline implementations, relative to module root
-  ${CMAKE_CURRENT_SOURCE_DIR}
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/bui/core>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/bui/dna>
 )
 target_include_directories(bui_core PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/intern

@@ -8,6 +8,64 @@ add_subdirectory(BUI)
 target_link_libraries(myapp PRIVATE bui::kit)
 ```
 
+## Distributing a C/C++ SDK
+
+From the repository root, run:
+
+```sh
+make dist-cpp
+```
+
+This builds an optimized `RelWithDebInfo` SDK in a separate `build-dist-cpp/`
+tree and creates a ZIP under `dist/cpp/`. On Windows, the distribution build
+requires MSVC and includes matching compiler PDBs for all archive objects.
+The normal build directory and its cached configuration are preserved.
+
+The extracted archive contains:
+
+```text
+include/bui/           runtime headers, ImGui headers when enabled, inline dependencies
+lib/                  static libraries; matching compiler .pdb files on Windows
+lib/cmake/BUI/        relocatable BUIConfig.cmake and exported targets
+share/licenses/BUI/  license and third-party notices
+```
+
+Use the same architecture, compatible compiler toolchain and matching
+runtime configuration as the SDK. The default Windows SDK uses the release
+DLL CRT; select `CPP_DIST_CONFIG=Debug` for a debug-CRT SDK. Pass `JOBS`,
+`CPP_DIST_BUILD_DIR`, `CPP_DIST_CONFIG`, `CPP_DIST_CMAKE_ARGS` and `DIST_DIR`
+to override the distribution build settings.
+
+An application using the extracted SDK needs no BUI source checkout:
+
+```cmake
+find_package(BUI CONFIG REQUIRED)
+target_link_libraries(myapp PRIVATE bui::kit)
+# Other exports: bui::core, bui::gpu, bui::api and, when enabled,
+# bui::imgui and bui::cimgui.
+```
+
+Configure that application with `-DCMAKE_PREFIX_PATH=/path/to/extracted-sdk`.
+CMake carries the transitive system libraries and include directories.
+Keep the Windows PDBs beside the `.lib` files; the application linker uses
+them to create its own PDB. Packaging fails when a required compiler PDB
+is missing.
+
+Without Make, configure with `-DBUI_BUILD_CPP_SDK=ON`, then build the CMake
+`dist-cpp` target. To install an unpacked SDK instead of creating a ZIP:
+
+```sh
+cmake --install build-dist-cpp --config RelWithDebInfo --component CppSDK --prefix dist/cpp/sdk
+```
+
+The standalone consumer in `tests/cpp_sdk/` can verify an extracted SDK:
+
+```sh
+cmake -S tests/cpp_sdk -B build-sdk-consumer -DCMAKE_PREFIX_PATH=/path/to/extracted-sdk
+cmake --build build-sdk-consumer --config RelWithDebInfo
+ctest --test-dir build-sdk-consumer -C RelWithDebInfo --output-on-failure
+```
+
 ## Hello from C
 
 `examples/kit_hello.c` (`cmake --build build --target bui_kit_hello`, with
